@@ -18,6 +18,11 @@
             <el-input type="password" v-model="ruleForm.password" autocomplete="off" minlength="6" maxlength="20"></el-input>
         </el-form-item>
 
+        <el-form-item  prop="checkPass" class="item-form" v-show="modelType == 'register'">
+          <label>确认密码</label>
+            <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off" minlength="6" maxlength="20"></el-input>
+        </el-form-item>
+
         <el-form-item  prop="code" class="item-form">
           <label>验证码</label>
           <el-row :gutter="10">
@@ -37,15 +42,15 @@
   </div>
 </template>
 <script>
+import {validateStr,validateEmail,validatePass,validateVCode} from '@/utils/validate';
 export default {
   name: "login",
   data(){
     //验证用户名
     var validateUsername = (rule, value, callback) => {
-      let reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/; 
       if (value === '') {
         callback(new Error('请输入用户名'));
-      } else if(!reg.test(value)) {
+      } else if(validateEmail(value)) {
         callback(new Error('请输入正确的用户名'));
       }else{
         callback();
@@ -53,21 +58,34 @@ export default {
     };
     //验证密码
     var validatePassword = (rule, value, callback) => {
-      let reg = /^(?!\D+$)(?![^a-zA-Z]+$)\S{6,20}$/;
       if (value === '') {
         callback(new Error('请输入密码'));
-      } else if(!reg.test(value)) {
+      }else if(validateStr(value)){
+        callback(new Error('密码包含特殊字符'));
+      } else if(validatePass(value)) {
         callback(new Error('请输入6至20位的字母+数字'));
+      }else{
+        callback();
+      }
+    };
+    //验证确认密码
+    var validatecheckPass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入确认密码'));
+      }else if(value != this.ruleForm.password){
+        callback(new Error('两次密码输入不一致'));
+       //当前页面如果是登录操作，就不验证这个表单元素
+      }else if (this.modelType == 'login'){
+        callback();
       }else{
         callback();
       }
     };
     //验证验证码
     var validateCode = (rule, value, callback) => {
-      let reg = /^[a-z0-9]{6}$/;
       if (value === '') {
         callback(new Error('请输入验证码'));
-      } else if(!reg.test(value)) {
+      } else if(validateVCode(value)||validateStr(value)) {
         callback(new Error('验证码格式有误'));
       }else{
         callback();
@@ -75,12 +93,14 @@ export default {
     };
     return{
       menuTab: [
-        {txt: '登录',isCurrent: true },
-        {txt: '注册',isCurrent: false}
+        {txt: '登录',isCurrent: true ,type: 'login'},
+        {txt: '注册',isCurrent: false,type: 'register'}
       ],
+      modelType: 'login',
       ruleForm: {
         username: '',
         password: '',
+        checkPass: '',
         code: ''
       },
       rules: {
@@ -89,6 +109,9 @@ export default {
         ],
         password: [
           { validator: validatePassword, trigger: 'blur' }
+        ],
+        checkPass: [
+          { validator: validatecheckPass, trigger: 'blur' }
         ],
         code: [
           { validator: validateCode, trigger: 'blur' }
@@ -117,6 +140,7 @@ export default {
         element.isCurrent = false
       });
       data.isCurrent = true
+      this.modelType = data.type
     }
   }
 }
