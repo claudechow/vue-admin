@@ -42,12 +42,32 @@
   </div>
 </template>
 <script>
+//必须引入 api 相关的内容
+import {reactive,ref,onMounted} from '@vue/composition-api'
 import {validateStr,validateEmail,validatePass,validateVCode} from '@/utils/validate';
 export default {
   name: "login",
-  data(){
+  // setup(props,context){
+  //解构
+  setup(props,{refs}){
+
+    //ref 对象需要使用.value取到内部值
+    const modelType = ref('login');
+
+    const menuTab = reactive([
+      {txt: '登录',isCurrent: true ,type: 'login'},
+      {txt: '注册',isCurrent: false,type: 'register'}
+    ]);
+    //表单绑定数据
+    const ruleForm = reactive({
+      username: 'claudesoft@163.com',
+      password: 'wo123456789',
+      passwords: '',
+      code: ''
+    });
+
     //验证用户名
-    var validateUsername = (rule, value, callback) => {
+    let validateUsername = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入用户名'));
       } else if(validateEmail(value)) {
@@ -57,7 +77,7 @@ export default {
       }
     };
     //验证密码
-    var validatePassword = (rule, value, callback) => {
+    let validatePassword = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入密码'));
       }else if(validateStr(value)){
@@ -69,20 +89,20 @@ export default {
       }
     };
     //验证确认密码
-    var validatecheckPass = (rule, value, callback) => {
-      if (value === '') {
+    let validatecheckPass = (rule, value, callback) => {
+      if (modelType.value == 'login'){
+        callback();
+      }else if (value === '') {
         callback(new Error('请输入确认密码'));
-      }else if(value != this.ruleForm.password){
+      }else if(value != ruleForm.password){
         callback(new Error('两次密码输入不一致'));
        //当前页面如果是登录操作，就不验证这个表单元素
-      }else if (this.modelType == 'login'){
-        callback();
       }else{
         callback();
       }
     };
     //验证验证码
-    var validateCode = (rule, value, callback) => {
+    let validateCode = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入验证码'));
       } else if(validateVCode(value)||validateStr(value)) {
@@ -91,62 +111,62 @@ export default {
         callback();
       }
     };
-    return{
-      menuTab: [
-        {txt: '登录',isCurrent: true ,type: 'login'},
-        {txt: '注册',isCurrent: false,type: 'register'}
+
+
+     // 表单的验证
+    const rules = reactive({
+      username: [
+        { validator: validateUsername, trigger: 'blur' }
       ],
-      modelType: 'login',
-      ruleForm: {
-        username: '',
-        password: '',
-        checkPass: '',
-        code: ''
-      },
-      rules: {
-        username: [
-          { validator: validateUsername, trigger: 'blur' }
-        ],
-        password: [
-          { validator: validatePassword, trigger: 'blur' }
-        ],
-        checkPass: [
-          { validator: validatecheckPass, trigger: 'blur' }
-        ],
-        code: [
-          { validator: validateCode, trigger: 'blur' }
-        ]
-      }
-        
-    }
-  },
-  created(){},
-  //挂载完成后自动执行
-  mounted(){},
-  //事件函数
-  methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+      password: [
+        { validator: validatePassword, trigger: 'blur' }
+      ],
+      checkPass: [
+        { validator: validatecheckPass, trigger: 'blur' }
+      ],
+      code: [
+        { validator: validateCode, trigger: 'blur' }
+      ]
+    });
+    //事件函数
+    const submitForm = (formName =>{
+      refs[formName].validate((valid) => {
         if (valid) {
           alert('submit!');
         } else {
           console.log('error submit!!');
           return false;
         }
-      });
-    },
-    toggleMenu(data){
-      this.menuTab.forEach(element => {
+      })
+    });
+
+    const toggleMenu = (data =>{
+      menuTab.forEach(element => {
         element.isCurrent = false
       });
       data.isCurrent = true
-      this.modelType = data.type
+      modelType.value = data.type
+    });
+
+    //挂载完成后自动执行
+    onMounted(() =>{
+      
+    })
+
+    return{
+      menuTab,
+      modelType,
+      submitForm,
+      toggleMenu,
+      ruleForm,
+      rules
     }
+
   }
 }
 </script>
-<style lang="scss" scoped>
 
+<style lang="scss" scoped>
 #login {
   height: 100vh; 
   background-color: #344a5f;
