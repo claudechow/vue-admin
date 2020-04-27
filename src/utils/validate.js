@@ -15,6 +15,7 @@
  * 验证特殊字符
  */
 export function validateStr(value) {
+  /* eslint-disable */
   let reg = /[`~!@#$%^&*()_\-+=<>?:"{}|,.\/;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]/im;
   return reg.test(value) ? true : false;
 }
@@ -22,6 +23,7 @@ export function validateStr(value) {
  * 验证邮箱
  */
 export function validateEmail(value) {
+  /* eslint-disable */
   let reg = /^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
   return !reg.test(value) ? true : false;
 }

@@ -20,8 +20,9 @@
         size="medium"
       >
         <el-form-item prop="username" class="item-form">
-          <label>邮箱</label>
+          <label for="username">邮箱</label>
           <el-input
+            id="username"
             type="text"
             v-model="ruleForm.username"
             autocomplete="off"
@@ -29,8 +30,9 @@
         </el-form-item>
 
         <el-form-item prop="password" class="item-form">
-          <label>密码</label>
+          <label for="password">密码</label>
           <el-input
+            id="password"
             type="password"
             v-model="ruleForm.password"
             autocomplete="off"
@@ -44,8 +46,9 @@
           class="item-form"
           v-show="modelType == 'register'"
         >
-          <label>确认密码</label>
+          <label for="checkPass">确认密码</label>
           <el-input
+            id="checkPass"
             type="password"
             v-model="ruleForm.checkPass"
             autocomplete="off"
@@ -55,10 +58,11 @@
         </el-form-item>
 
         <el-form-item prop="code" class="item-form">
-          <label>验证码</label>
+          <label for="code">验证码</label>
           <el-row :gutter="10">
             <el-col :span="15"
               ><el-input
+                id="code"
                 v-model="ruleForm.code"
                 minlength="6"
                 maxlength="6"
@@ -77,7 +81,8 @@
             type="danger"
             class="login-btn block-form"
             @click="submitForm('ruleForm')"
-            >提交</el-button
+            :disabled="subButtonStats"
+            >{{ modelType == "login" ? "登陆" : "注册" }}</el-button
           >
         </el-form-item>
       </el-form>
@@ -98,10 +103,11 @@ export default {
   name: "login",
   // setup(props,context){
   //解构
-  setup(props, { refs }) {
+  setup(props, { refs, root }) {
     //ref 对象需要使用.value取到内部值
     const modelType = ref("login");
-
+    //提交按钮状态
+    const subButtonStats = ref(true);
     const menuTab = reactive([
       { txt: "登录", isCurrent: true, type: "login" },
       { txt: "注册", isCurrent: false, type: "register" }
@@ -119,7 +125,7 @@ export default {
       if (value === "") {
         callback(new Error("请输入用户名"));
       } else if (validateEmail(value)) {
-        callback(new Error("请输入正确的用户名"));
+        callback(new Error("邮箱格式不正确!!"));
       } else {
         callback();
       }
@@ -177,10 +183,27 @@ export default {
     };
     //获取验证码
     const getSms = () => {
-      let data = {
-        username: ruleForm.username
+      //邮箱为空
+      if (ruleForm.username == "") {
+        root.$message.error("邮箱不能为空!!");
+        return false;
+      }
+      if (validateEmail(ruleForm.username)) {
+        root.$message.error("邮箱格式不正确!!");
+        return false;
+      }
+      //请求服务器接口 获取验证码/GetSms
+      let requestData = {
+        username: ruleForm.username,
+        module: modelType.value
       };
-      GetSms(data);
+      GetSms(requestData)
+        .then(response => {
+          console.log(response);
+        })
+        .catch(error => {
+          console.log(error);
+        });
     };
     //提交
     const submitForm = formName => {
@@ -198,6 +221,7 @@ export default {
     onMounted(() => {});
 
     return {
+      subButtonStats,
       menuTab,
       modelType,
       submitForm,

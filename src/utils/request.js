@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Message } from "element-ui";
 
 //创建axios对象
 
@@ -26,7 +27,12 @@ service.interceptors.request.use(
 //响应拦截器
 service.interceptors.response.use(
   function(response) {
+    let data = response.data;
     //响应之后
+    if (data.resCode != 0) {
+      Message.error(data.message);
+      return Promise.reject(data);
+    }
     return response;
   },
   function(error) {
