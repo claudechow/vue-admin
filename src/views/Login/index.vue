@@ -2,83 +2,38 @@
   <div id="login">
     <div class="login-wrap">
       <ul class="menu-tab">
-        <li
-          v-for="item in menuTab"
-          :key="item.id"
-          :class="{ current: item.isCurrent }"
-          @click="toggleMenu(item)"
-        >
+        <li v-for="item in menuTab" :key="item.id" :class="{ current: item.isCurrent }" @click="toggleMenu(item)">
           {{ item.txt }}
         </li>
       </ul>
-      <el-form
-        :model="ruleForm"
-        status-icon
-        :rules="rules"
-        ref="ruleForm"
-        class="login-form"
-        size="medium"
-      >
+      <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="login-form" size="medium">
         <el-form-item prop="username" class="item-form">
           <label>邮箱</label>
-          <el-input
-            type="text"
-            v-model="ruleForm.username"
-            autocomplete="off"
-          ></el-input>
+          <el-input type="text" v-model="ruleForm.username" autocomplete="off"></el-input>
         </el-form-item>
 
         <el-form-item prop="password" class="item-form">
           <label>密码</label>
-          <el-input
-            type="password"
-            v-model="ruleForm.password"
-            autocomplete="off"
-            minlength="6"
-            maxlength="20"
-          ></el-input>
+          <el-input type="password" v-model="ruleForm.password" autocomplete="off" minlength="6" maxlength="20"></el-input>
         </el-form-item>
 
-        <el-form-item
-          prop="checkPass"
-          class="item-form"
-          v-show="modelType == 'register'"
-        >
+        <el-form-item prop="checkPass" class="item-form" v-show="modelType == 'register'">
           <label>确认密码</label>
-          <el-input
-            type="password"
-            v-model="ruleForm.checkPass"
-            autocomplete="off"
-            minlength="6"
-            maxlength="20"
-          ></el-input>
+          <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off" minlength="6" maxlength="20"></el-input>
         </el-form-item>
 
         <el-form-item prop="code" class="item-form">
           <label>验证码</label>
           <el-row :gutter="10">
-            <el-col :span="15"
-              ><el-input
-                v-model="ruleForm.code"
-                minlength="6"
-                maxlength="6"
-              ></el-input
-            ></el-col>
+            <el-col :span="15"><el-input v-model="ruleForm.code" minlength="6" maxlength="6"></el-input></el-col>
             <el-col :span="9">
-              <el-button type="success" class="block-form" @click="getSms"
-                >获取验证码</el-button
-              >
+              <el-button type="success" class="block-form" @click="getSms">获取验证码</el-button>
             </el-col>
           </el-row>
         </el-form-item>
 
         <el-form-item>
-          <el-button
-            type="danger"
-            class="login-btn block-form"
-            @click="submitForm('ruleForm')"
-            >提交</el-button
-          >
+          <el-button type="danger" class="login-btn block-form" @click="submitForm('ruleForm')">提交</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -88,12 +43,7 @@
 //必须引入 api 相关的内容
 import { reactive, ref, onMounted } from "@vue/composition-api";
 import { GetSms } from "@/api/login";
-import {
-  validateStr,
-  validateEmail,
-  validatePass,
-  validateVCode
-} from "@/utils/validate";
+import { validateStr,validateEmail,validatePass,validateVCode } from "@/utils/validate";
 export default {
   name: "login",
   // setup(props,context){
