@@ -65,7 +65,7 @@
               ></el-input
             ></el-col>
             <el-col :span="9">
-              <el-button type="success" class="block-form"
+              <el-button type="success" class="block-form" @click="getSms"
                 >获取验证码</el-button
               >
             </el-col>
@@ -87,13 +87,13 @@
 <script>
 //必须引入 api 相关的内容
 import { reactive, ref, onMounted } from "@vue/composition-api";
+import { GetSms } from "@/api/login";
 import {
   validateStr,
   validateEmail,
   validatePass,
   validateVCode
 } from "@/utils/validate";
-import axios from "axios";
 export default {
   name: "login",
   // setup(props,context){
@@ -168,17 +168,22 @@ export default {
       code: [{ validator: validateCode, trigger: "blur" }]
     });
     //事件函数
-    const submitForm = formName => {
-      // 发送 POST 请求
-      axios({
-        method: "post",
-        url: "/user/12345",
-        data: {
-          firstName: "Fred",
-          lastName: "Flintstone"
-        }
+    const toggleMenu = data => {
+      menuTab.forEach(element => {
+        element.isCurrent = false;
       });
-
+      data.isCurrent = true;
+      modelType.value = data.type;
+    };
+    //获取验证码
+    const getSms = () => {
+      let data = {
+        username: ruleForm.username
+      };
+      GetSms(data);
+    };
+    //提交
+    const submitForm = formName => {
       refs[formName].validate(valid => {
         if (valid) {
           alert("submit!");
@@ -187,14 +192,6 @@ export default {
           return false;
         }
       });
-    };
-
-    const toggleMenu = data => {
-      menuTab.forEach(element => {
-        element.isCurrent = false;
-      });
-      data.isCurrent = true;
-      modelType.value = data.type;
     };
 
     //挂载完成后自动执行
@@ -206,7 +203,8 @@ export default {
       submitForm,
       toggleMenu,
       ruleForm,
-      rules
+      rules,
+      getSms
     };
   }
 };
