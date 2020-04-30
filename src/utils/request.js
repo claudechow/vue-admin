@@ -37,6 +37,7 @@ service.interceptors.response.use(
   },
   function(error) {
     //响应错误
+    Message.error("服务器请求超时！！");
     return Promise.reject(error);
   }
 );

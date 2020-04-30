@@ -15,7 +15,7 @@
         :model="ruleForm"
         status-icon
         :rules="rules"
-        ref="ruleForm"
+        ref="loginForm"
         class="login-form"
         size="medium"
       >
@@ -69,8 +69,12 @@
               ></el-input
             ></el-col>
             <el-col :span="9">
-              <el-button type="success" class="block-form" @click="getSms"
-                >获取验证码</el-button
+              <el-button
+                type="success"
+                class="block-form"
+                :disabled="codeButtonStats.disabled"
+                @click="getSms"
+                >{{ codeButtonStats.text }}</el-button
               >
             </el-col>
           </el-row>
@@ -80,7 +84,7 @@
           <el-button
             type="danger"
             class="login-btn block-form"
-            @click="submitForm('ruleForm')"
+            @click="submitForm('loginForm')"
             :disabled="subButtonStats"
             >{{ modelType == "login" ? "登陆" : "注册" }}</el-button
           >
@@ -92,7 +96,7 @@
 <script>
 //必须引入 api 相关的内容
 import { reactive, ref, onMounted } from "@vue/composition-api";
-import { GetSms } from "@/api/login";
+import { GetSms, Register } from "@/api/login";
 import {
   validateStr,
   validateEmail,
@@ -108,15 +112,19 @@ export default {
     const modelType = ref("login");
     //提交按钮状态
     const subButtonStats = ref(true);
+    //验证码按钮状态
+    const codeButtonStats = reactive({ text: "获取验证码", disabled: false });
+    // 计时器
+    const timer = ref(null);
     const menuTab = reactive([
       { txt: "登录", isCurrent: true, type: "login" },
       { txt: "注册", isCurrent: false, type: "register" }
     ]);
     //表单绑定数据
     const ruleForm = reactive({
-      username: "claudesoft@163.com",
-      password: "wo123456789",
-      passwords: "",
+      username: "",
+      password: "",
+      checkPass: "",
       code: ""
     });
 
@@ -180,6 +188,7 @@ export default {
       });
       data.isCurrent = true;
       modelType.value = data.type;
+      resetForm("loginForm");
     };
     //获取验证码
     const getSms = () => {
@@ -197,24 +206,76 @@ export default {
         username: ruleForm.username,
         module: modelType.value
       };
-      GetSms(requestData)
-        .then(response => {
-          console.log(response);
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      //修改验证码按钮状态
+      codeButtonStats.disabled = true;
+      codeButtonStats.text = "发送中";
+      setTimeout(() => {
+        GetSms(requestData)
+          //接口调用成功
+          .then(response => {
+            root.$message({
+              message: response.data.message,
+              type: "success"
+            });
+            // 启用登录或注册按钮
+            subButtonStats.value = false;
+            // 调用计时器倒计时
+            countDown(60);
+          })
+          //接口调用失败
+          .catch(error => {
+            console.log(error);
+          });
+      }, 3000);
     };
     //提交
     const submitForm = formName => {
       refs[formName].validate(valid => {
         if (valid) {
-          alert("submit!");
+          let requestData = {
+            username: ruleForm.username,
+            password: ruleForm.password,
+            code: ruleForm.code,
+            module: "register"
+          };
+          // 登录接口
+          Register(requestData)
+            .then(response => {
+              root.$message({
+                message: response.data.message,
+                type: "success"
+              });
+              // 切换到登录页面
+              toggleMenu(menuTab[0]);
+            })
+            .catch(error => {
+              console.log(error);
+            });
         } else {
           console.log("error submit!!");
           return false;
         }
       });
+    };
+    //重置表单
+    const resetForm = formName => {
+      refs[formName].resetFields();
+    };
+    // 倒计时
+    const countDown = number => {
+      //setTimeout() 只执行一次
+      // setInterval() 持续执行，需要条件停止
+      let time = number;
+      timer.value = setInterval(() => {
+        time--;
+        if (time == 0) {
+          clearInterval(timer.value);
+          codeButtonStats.disabled = false;
+          codeButtonStats.text = "再次获取";
+        } else {
+          codeButtonStats.text = `倒计时(${time})秒`;
+        }
+      }, 1000);
     };
 
     //挂载完成后自动执行
@@ -222,13 +283,17 @@ export default {
 
     return {
       subButtonStats,
+      codeButtonStats,
       menuTab,
       modelType,
       submitForm,
+      resetForm,
       toggleMenu,
       ruleForm,
       rules,
-      getSms
+      timer,
+      getSms,
+      countDown
     };
   }
 };
