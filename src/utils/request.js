@@ -16,7 +16,9 @@ export default service;
 //请求拦截器
 service.interceptors.request.use(
   function(config) {
-    //发送请求之前
+    // 发送请求之前
+    // 添加头参数
+    config.headers["claude"] = "claude";
     return config;
   },
   function(error) {

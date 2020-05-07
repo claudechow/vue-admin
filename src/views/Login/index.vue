@@ -94,7 +94,9 @@
   </div>
 </template>
 <script>
-//必须引入 api 相关的内容
+// sha1 引用sha1
+import sha1 from "js-sha1";
+// 必须引入 api 相关的内容
 import { reactive, ref, onMounted } from "@vue/composition-api";
 import { GetSms, Register, Login } from "@/api/login";
 import {
@@ -181,6 +183,45 @@ export default {
       checkPass: [{ validator: validatecheckPass, trigger: "blur" }],
       code: [{ validator: validateCode, trigger: "blur" }]
     });
+    //重置表单
+    const resetForm = formName => {
+      refs[formName].resetFields();
+    };
+    // 更新验证码按钮样式
+    const updateCodeButtionState = params => {
+      codeButtonStats.disabled = params.disabled;
+      codeButtonStats.text = params.text;
+    };
+    // 重置获取验证码按钮样式
+    const clearCountDown = () => {
+      updateCodeButtionState({
+        disabled: false,
+        text: "获取验证码"
+      });
+      clearInterval(timer.value);
+    };
+    // 倒计时
+    const countDown = number => {
+      // 判断定时器是否存在，如果存在重置计时器
+      if (timer.value) {
+        clearInterval(timer.value);
+      }
+      // setTimeout() 只执行一次
+      // setInterval() 持续执行，需要条件停止
+      let time = number;
+      timer.value = setInterval(() => {
+        time--;
+        if (time == 0) {
+          clearInterval(timer.value);
+          updateCodeButtionState({
+            disabled: false,
+            text: "再次获取"
+          });
+        } else {
+          codeButtonStats.text = `倒计时(${time})秒`;
+        }
+      }, 1000);
+    };
     //事件函数
     const toggleMenu = data => {
       menuTab.forEach(element => {
@@ -190,6 +231,8 @@ export default {
       modelType.value = data.type;
       // 重置表单
       resetForm("loginForm");
+      // 重置验证码按钮样式
+      clearCountDown();
     };
     //获取验证码
     const getSms = () => {
@@ -208,8 +251,10 @@ export default {
         module: modelType.value
       };
       //修改验证码按钮状态
-      codeButtonStats.disabled = true;
-      codeButtonStats.text = "发送中";
+      updateCodeButtionState({
+        disabled: true,
+        text: "发送中"
+      });
       GetSms(requestData)
         //接口调用成功
         .then(response => {
@@ -240,10 +285,11 @@ export default {
         }
       });
     };
+    // 注册
     const register = () => {
       let requestData = {
         username: ruleForm.username,
-        password: ruleForm.password,
+        password: sha1(ruleForm.password),
         code: ruleForm.code,
         module: "register"
       };
@@ -256,17 +302,16 @@ export default {
           });
           // 切换到登录页面
           toggleMenu(menuTab[0]);
-          // 重置验证码按钮样式
-          clearCountDown();
         })
         .catch(error => {
           console.log(error);
         });
     };
+    // 登录
     const login = () => {
       let requestData = {
         username: ruleForm.username,
-        password: ruleForm.password,
+        password: sha1(ruleForm.password),
         code: ruleForm.code,
         module: "login"
       };
@@ -281,37 +326,6 @@ export default {
           console.log(error);
         });
     };
-    //重置表单
-    const resetForm = formName => {
-      refs[formName].resetFields();
-    };
-    // 重置获取验证码按钮样式
-    const clearCountDown = () => {
-      codeButtonStats.disabled = false;
-      codeButtonStats.text = "获取验证码";
-      clearInterval(timer.value);
-    };
-    // 倒计时
-    const countDown = number => {
-      // 判断定时器是否存在，如果存在重置计时器
-      if (timer.value) {
-        clearInterval(timer.value);
-      }
-      // setTimeout() 只执行一次
-      // setInterval() 持续执行，需要条件停止
-      let time = number;
-      timer.value = setInterval(() => {
-        time--;
-        if (time == 0) {
-          clearInterval(timer.value);
-          codeButtonStats.disabled = false;
-          codeButtonStats.text = "再次获取";
-        } else {
-          codeButtonStats.text = `倒计时(${time})秒`;
-        }
-      }, 1000);
-    };
-
     //挂载完成后自动执行
     onMounted(() => {});
 
