@@ -96,7 +96,7 @@
 <script>
 //必须引入 api 相关的内容
 import { reactive, ref, onMounted } from "@vue/composition-api";
-import { GetSms, Register } from "@/api/login";
+import { GetSms, Register, Login } from "@/api/login";
 import {
   validateStr,
   validateEmail,
@@ -188,6 +188,7 @@ export default {
       });
       data.isCurrent = true;
       modelType.value = data.type;
+      // 重置表单
       resetForm("loginForm");
     };
     //获取验证码
@@ -209,61 +210,94 @@ export default {
       //修改验证码按钮状态
       codeButtonStats.disabled = true;
       codeButtonStats.text = "发送中";
-      setTimeout(() => {
-        GetSms(requestData)
-          //接口调用成功
-          .then(response => {
-            root.$message({
-              message: response.data.message,
-              type: "success"
-            });
-            // 启用登录或注册按钮
-            subButtonStats.value = false;
-            // 调用计时器倒计时
-            countDown(60);
-          })
-          //接口调用失败
-          .catch(error => {
-            console.log(error);
+      GetSms(requestData)
+        //接口调用成功
+        .then(response => {
+          root.$message({
+            message: response.data.message,
+            type: "success"
           });
-      }, 3000);
+          // 启用登录或注册按钮
+          subButtonStats.value = false;
+          // 调用计时器倒计时
+          countDown(60);
+        })
+        //接口调用失败
+        .catch(error => {
+          console.log(error);
+          // 调用计时器倒计时
+          countDown(60);
+        });
     };
     //提交
     const submitForm = formName => {
       refs[formName].validate(valid => {
         if (valid) {
-          let requestData = {
-            username: ruleForm.username,
-            password: ruleForm.password,
-            code: ruleForm.code,
-            module: "register"
-          };
-          // 登录接口
-          Register(requestData)
-            .then(response => {
-              root.$message({
-                message: response.data.message,
-                type: "success"
-              });
-              // 切换到登录页面
-              toggleMenu(menuTab[0]);
-            })
-            .catch(error => {
-              console.log(error);
-            });
+          modelType.value == "login" ? login() : register();
         } else {
           console.log("error submit!!");
           return false;
         }
       });
     };
+    const register = () => {
+      let requestData = {
+        username: ruleForm.username,
+        password: ruleForm.password,
+        code: ruleForm.code,
+        module: "register"
+      };
+      // 注册接口
+      Register(requestData)
+        .then(response => {
+          root.$message({
+            message: response.data.message,
+            type: "success"
+          });
+          // 切换到登录页面
+          toggleMenu(menuTab[0]);
+          // 重置验证码按钮样式
+          clearCountDown();
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
+    const login = () => {
+      let requestData = {
+        username: ruleForm.username,
+        password: ruleForm.password,
+        code: ruleForm.code,
+        module: "login"
+      };
+      Login(requestData)
+        .then(response => {
+          root.$message({
+            message: response.data.message,
+            type: "success"
+          });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
     //重置表单
     const resetForm = formName => {
       refs[formName].resetFields();
     };
+    // 重置获取验证码按钮样式
+    const clearCountDown = () => {
+      codeButtonStats.disabled = false;
+      codeButtonStats.text = "获取验证码";
+      clearInterval(timer.value);
+    };
     // 倒计时
     const countDown = number => {
-      //setTimeout() 只执行一次
+      // 判断定时器是否存在，如果存在重置计时器
+      if (timer.value) {
+        clearInterval(timer.value);
+      }
+      // setTimeout() 只执行一次
       // setInterval() 持续执行，需要条件停止
       let time = number;
       timer.value = setInterval(() => {
