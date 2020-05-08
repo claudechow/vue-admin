@@ -317,10 +317,8 @@ export default {
       };
       Login(requestData)
         .then(response => {
-          root.$message({
-            message: response.data.message,
-            type: "success"
-          });
+          root.$router.push("Mainview");
+          console.log(response);
         })
         .catch(error => {
           console.log(error);
