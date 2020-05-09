@@ -10,7 +10,7 @@ export default {};
   top: 0;
   left: $navWidth;
   right: 0;
-  height: 75px;
+  height: $headerHeight;
   background-color: #fff;
   -webkit-box-shadow: 0 3px 16px 0 rgba(0, 0, 0, 0.1);
 }

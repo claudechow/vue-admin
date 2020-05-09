@@ -6,9 +6,9 @@
   </div>
 </template>
 <script>
-import LayoutNav from "../Layout/Componets/Nav";
-import LayoutHeader from "../Layout/Componets/Header";
-import LayoutMain from "../Layout/Componets/Main";
+import LayoutNav from "../Layout/Componets/nav";
+import LayoutHeader from "../Layout/Componets/header";
+import LayoutMain from "../Layout/Componets/main";
 export default {
   name: "mainview",
   components: { LayoutNav, LayoutHeader, LayoutMain },
