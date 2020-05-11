@@ -3,8 +3,6 @@
     <el-menu
       default-active="1-4-1"
       class="el-menu-vertical-demo"
-      @open="handleOpen"
-      @close="handleClose"
       :collapse="isCollapse"
       background-color="transparent"
       text-color="#fff"
@@ -14,7 +12,7 @@
       <template v-for="(item, index) in routes">
         <el-submenu v-if="!item.hidden" :key="item.id" :index="index + ''">
           <template slot="title">
-            <i class="el-icon-location"></i>
+            <svg-icon :iconClass="item.meta.icon" :className="item.meta.icon" />
             <span slot="title">{{ item.meta.name }}</span>
           </template>
           <el-menu-item
@@ -34,19 +32,10 @@ export default {
   name: "navView",
   setup(props, { root }) {
     const routes = reactive(root.$router.options.routes);
-    console.log(routes);
     const isCollapse = ref(false);
-    const handleOpen = (key, keyPath) => {
-      console.log(key, keyPath);
-    };
-    const handleClose = (key, keyPath) => {
-      console.log(key, keyPath);
-    };
     return {
       routes,
-      isCollapse,
-      handleOpen,
-      handleClose
+      isCollapse
     };
   }
 };

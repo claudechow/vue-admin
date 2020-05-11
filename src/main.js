@@ -6,6 +6,8 @@ import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 // 引入Composition API模块
 import VueCompositionApi from "@vue/composition-api";
+// 引入自定义Icon图标
+import "./icons/index.js";
 
 Vue.use(ElementUI);
 //显式调用 VueCompositionApi
