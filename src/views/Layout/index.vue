@@ -1,8 +1,8 @@
 <template>
   <div>
-    <LayoutNav />
     <LayoutHeader />
     <LayoutMain />
+    <LayoutNav />
   </div>
 </template>
 <script>

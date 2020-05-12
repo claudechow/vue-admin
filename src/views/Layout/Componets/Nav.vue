@@ -1,5 +1,6 @@
 <template>
   <div id="nav-wrap">
+    <h1 class="logo"><img src="../../../assets/logo.png" alt="" /></h1>
     <el-menu
       default-active="1-4-1"
       class="el-menu-vertical-demo"
@@ -48,5 +49,16 @@ export default {
   width: $navWidth;
   height: 100vh;
   background-color: #344a5f;
+  svg {
+    font-size: 20px;
+    margin-right: 10px;
+  }
+}
+.logo {
+  text-align: center;
+  img {
+    margin: 28px auto 25px;
+    width: 92px;
+  }
 }
 </style>
