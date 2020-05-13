@@ -1,6 +1,6 @@
 <template>
   <div id="nav-wrap">
-    <h1 class="logo"><img src="../../../assets/logo.png" alt="" /></h1>
+    <h1 class="logo"><img src="../../../assets/images/picc.png" alt="" /></h1>
     <el-menu
       default-active="1-4-1"
       class="el-menu-vertical-demo"
@@ -8,6 +8,7 @@
       background-color="transparent"
       text-color="#fff"
       active-text-color="#fff"
+      :collapse-transition="isTransition"
       router
     >
       <template v-for="(item, index) in routes">
@@ -28,27 +29,29 @@
   </div>
 </template>
 <script>
-import { reactive, ref } from "@vue/composition-api";
+import { reactive, computed } from "@vue/composition-api";
 export default {
   name: "navView",
   setup(props, { root }) {
     const routes = reactive(root.$router.options.routes);
-    const isCollapse = ref(false);
+    const isCollapse = computed(() => root.$store.state.isCollapse);
     return {
       routes,
-      isCollapse
+      isCollapse,
+      isTransition: false
     };
   }
 };
 </script>
 <style lang="scss" scoped>
+@import "../../../styles/config.scss";
 #nav-wrap {
   position: fixed;
   top: 0;
   left: 0;
-  width: $navWidth;
   height: 100vh;
   background-color: #344a5f;
+  @include webkit(transition, all 0.3s ease 0s);
   svg {
     font-size: 20px;
     margin-right: 10px;
@@ -59,6 +62,16 @@ export default {
   img {
     margin: 28px auto 25px;
     width: 92px;
+  }
+}
+.close {
+  #nav-wrap {
+    width: $navMinWidth;
+  }
+}
+.open {
+  #nav-wrap {
+    width: $navWidth;
   }
 }
 </style>
