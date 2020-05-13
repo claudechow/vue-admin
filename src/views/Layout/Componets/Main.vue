@@ -44,22 +44,26 @@ export default {};
 }
 .copyright-info-content {
   position: fixed;
-  width: 100%;
   bottom: 0;
-  left: 0;
+  right: 30px;
   text-align: center;
   font-size: 11px;
   font-weight: bold;
-  color: #344a5f;
 }
 .close {
   .main-content {
     padding-left: $navMinWidth + 30px;
   }
+  .copyright-info-content {
+    left: $navMinWidth + 30px;
+  }
 }
 .open {
   .main-content {
     padding-left: $navWidth + 30px;
+  }
+  .copyright-info-content {
+    left: $navWidth + 30px;
   }
 }
 </style>

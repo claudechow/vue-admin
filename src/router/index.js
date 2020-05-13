@@ -71,8 +71,8 @@ const routes = [
     ]
   },
   {
-    path: "/infoView",
-    name: "Infoview",
+    path: "/userView",
+    name: "Userview",
     meta: {
       name: "用户管理",
       icon: "user"
