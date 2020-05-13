@@ -13,7 +13,6 @@ Vue.use(ElementUI);
 //显式调用 VueCompositionApi
 Vue.use(VueCompositionApi);
 Vue.config.productionTip = false;
-
 new Vue({
   router,
   store,
