@@ -8,11 +8,14 @@ import "element-ui/lib/theme-chalk/index.css";
 import VueCompositionApi from "@vue/composition-api";
 // 引入自定义Icon图标
 import "./icons/index.js";
+// 引入路由守卫
+import "./router/premit.js";
 
 Vue.use(ElementUI);
-//显式调用 VueCompositionApi
+// 显式调用 VueCompositionApi
 Vue.use(VueCompositionApi);
 Vue.config.productionTip = false;
+
 new Vue({
   router,
   store,
