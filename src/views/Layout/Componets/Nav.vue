@@ -62,11 +62,15 @@ export default {
   img {
     margin: 28px auto 25px;
     width: 92px;
+    @include webkit(transition, all 0.3s ease 0s);
   }
 }
 .close {
   #nav-wrap {
     width: $navMinWidth;
+    .logo img {
+      width: 70%;
+    }
   }
 }
 .open {
