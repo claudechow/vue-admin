@@ -14,7 +14,10 @@ export default {
   name: "layoutView",
   components: { LayoutNav, LayoutHeader, LayoutMain },
   setup(props, { root }) {
-    const menuStats = computed(() => root.$store.state.isCollapse);
+    /**
+     *  computed 监听
+     */
+    const menuStats = computed(() => root.$store.state.app.isCollapse);
     return {
       menuStats
     };

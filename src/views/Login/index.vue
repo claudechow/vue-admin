@@ -98,7 +98,7 @@
 import sha1 from "js-sha1";
 // 必须引入 api 相关的内容
 import { reactive, ref, onMounted } from "@vue/composition-api";
-import { GetSms, Register, Login } from "@/api/login";
+import { GetSms, Register } from "@/api/login";
 import {
   validateStr,
   validateEmail,
@@ -315,9 +315,10 @@ export default {
         code: ruleForm.code,
         module: "login"
       };
-      Login(requestData)
+      root.$store
+        .dispatch("login/login", requestData)
         .then(response => {
-          root.$router.push("Mainview");
+          root.$router.push("Index");
           console.log(response);
         })
         .catch(error => {

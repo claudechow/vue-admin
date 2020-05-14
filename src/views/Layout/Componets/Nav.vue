@@ -33,8 +33,15 @@ import { reactive, computed } from "@vue/composition-api";
 export default {
   name: "navView",
   setup(props, { root }) {
+    /**
+     *  data数据
+     */
     const routes = reactive(root.$router.options.routes);
-    const isCollapse = computed(() => root.$store.state.isCollapse);
+    /**
+     *  computed 监听
+     *  当监听到的目标值发生改变 变量值会随目标值发生改变
+     */
+    const isCollapse = computed(() => root.$store.state.app.isCollapse);
     return {
       routes,
       isCollapse,
