@@ -7,12 +7,21 @@
     </div>
     <h1 class="copyright-info-content">
       抚顺公司数据综合管理平台-中国人民财产保险股份有限公司抚顺市分公司-周忠强 ©
-      2015-2020
+      2015-{{ yearStr }}
     </h1>
   </div>
 </template>
 <script>
-export default {};
+import { getYearStr } from "../../../utils/app.js";
+export default {
+  name: "mainView",
+  setup() {
+    const yearStr = getYearStr();
+    return {
+      yearStr
+    };
+  }
+};
 </script>
 <style lang="scss" scoped>
 @import "../../../styles/config.scss";
@@ -44,7 +53,7 @@ export default {};
 }
 .copyright-info-content {
   position: fixed;
-  bottom: 0;
+  bottom: 5px;
   right: 30px;
   text-align: center;
   font-size: 11px;

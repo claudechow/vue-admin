@@ -7,6 +7,12 @@ const whiteRouter = ["/login"];
 router.beforeEach((to, from, next) => {
   // Token有效
   if (getToken()) {
+    // 判断如果已经登录时返回login页面时则不路由跳转
+    if (to.path === "/login") {
+      next(from);
+    } else {
+      next();
+    }
   } else {
     /**
      * 1、直接进入index的时候，参数to被改变成了 "/index"，触发路由指向，就会跑beforeEach
