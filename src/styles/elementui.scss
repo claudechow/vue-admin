@@ -31,4 +31,13 @@ li.el-submenu {
   .el-menu-item:hover { background-color: rgba(89, 128, 164, 0.7) !important; }
 }
 
+/* table 样式*/
+div.el-table {
+  td, th { text-align: center; }
+  th {
+      font-weight: bold;
+      color: #344a5f;
+  }
+  td { font-size: 14px; }
+}
 
