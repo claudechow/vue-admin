@@ -67,7 +67,12 @@
         <el-button type="danger">搜索</el-button>
       </el-col>
       <el-col :span="5">
-        <el-button type="danger" class="pull-right">新增</el-button>
+        <el-button
+          type="danger"
+          class="pull-right"
+          @click="add_dialog_visible = true"
+          >新增</el-button
+        >
       </el-col>
     </el-row>
     <div class="black-space-30"></div>
@@ -119,12 +124,15 @@
         </el-pagination>
       </el-col>
     </el-row>
+    <DialogInfo :visible.sync="add_dialog_visible" />
   </div>
 </template>
 <script>
 import { reactive, ref } from "@vue/composition-api";
+import DialogInfo from "./dialog/addinfo";
 export default {
   name: "infoListView",
+  components: { DialogInfo },
   setup() {
     const category_options = reactive([
       {
@@ -180,6 +188,7 @@ export default {
     const date_value = ref("");
     const search_key = ref("id");
     const search_keyWork = ref("");
+    const add_dialog_visible = ref(true);
 
     const handleEdit = (index, row) => {
       console.log(index, row);
@@ -195,6 +204,7 @@ export default {
       search_options,
       search_key,
       search_keyWork,
+      add_dialog_visible,
       tableData,
       handleEdit,
       handleDelete
