@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Message } from "element-ui";
+import { getToken, getUsername } from "@/utils/app";
 
 //创建axios对象
 
@@ -18,7 +19,8 @@ service.interceptors.request.use(
   function(config) {
     // 发送请求之前
     // 添加头参数
-    config.headers["claude"] = "claude";
+    config.headers["Tokey"] = getToken();
+    config.headers["UserName"] = getUsername();
     return config;
   },
   function(error) {

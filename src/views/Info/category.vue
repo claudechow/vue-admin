@@ -1,100 +1,31 @@
 <template>
   <div id="category">
-    <el-button type="danger">添加一级分类</el-button>
+    <el-button type="danger" @click="addFirstCategory">添加一级分类</el-button>
     <hr class="hr-e9e9e9" />
     <div>
       <el-row :gutter="30">
         <el-col :span="8">
           <div class="category-warp">
-            <div class="category">
+            <div
+              class="category"
+              v-for="category_item in category.item"
+              :key="category_item.id"
+            >
               <h4>
                 <svg-icon icon-class="plus"></svg-icon>
-                新闻
+                {{ category_item.category_name }}
                 <div class="button-group">
                   <el-button type="danger" size="mini" round>编辑</el-button>
                   <el-button type="success" size="mini" round>编辑</el-button>
                   <el-button size="mini" round>删除</el-button>
                 </div>
               </h4>
-              <ul>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <div class="category">
-              <h4>
-                <svg-icon icon-class="plus"></svg-icon>
-                新闻
-                <div class="button-group">
-                  <el-button type="danger" size="mini" round>编辑</el-button>
-                  <el-button type="success" size="mini" round>编辑</el-button>
-                  <el-button size="mini" round>删除</el-button>
-                </div>
-              </h4>
-              <ul>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-                <li>
-                  国内
-                  <div class="button-group">
-                    <el-button type="danger" size="mini" round>编辑</el-button>
-                    <el-button size="mini" round>删除</el-button>
-                  </div>
-                </li>
-                <li>
-                  国内
+              <ul v-if="category_item.children">
+                <li
+                  v-for="children_item in category_item.children"
+                  :key="children_item.id"
+                >
+                  {{ children_item.category_name }}
                   <div class="button-group">
                     <el-button type="danger" size="mini" round>编辑</el-button>
                     <el-button size="mini" round>删除</el-button>
@@ -107,15 +38,29 @@
         <el-col :span="16">
           <h4 class="menu-title">一级分类编辑</h4>
           <div>
-            <el-form class="from-wrap" ref="categoryFrom" label-width="142px">
-              <el-form-item label="一级分类名称">
-                <el-input v-model="form.categoryName"></el-input>
+            <el-form
+              :model="categoryFrom"
+              class="from-wrap"
+              ref="categoryFrom"
+              label-width="142px"
+            >
+              <el-form-item
+                label="一级分类名称"
+                v-if="addfirstcategory_visible"
+              >
+                <el-input v-model="categoryFrom.firstcategoryName"></el-input>
               </el-form-item>
-              <el-form-item label="二级分类名称">
-                <el-input v-model="form.secCategoryName"></el-input>
+              <el-form-item label="二级分类名称" v-if="addseccategory_visible">
+                <el-input v-model="categoryFrom.secCategoryName"></el-input>
               </el-form-item>
               <el-form-item>
-                <el-button type="danger" round>确定</el-button>
+                <el-button
+                  type="danger"
+                  round
+                  @click="addFirstCategorySub"
+                  :loading="sub_btn_isloading"
+                  >确定</el-button
+                >
               </el-form-item>
             </el-form>
           </div>
@@ -125,16 +70,85 @@
   </div>
 </template>
 <script>
-import { reactive } from "@vue/composition-api";
+import { AddFirstCategory, GetCategoryAll } from "@/api/info";
+import { reactive, ref, onMounted } from "@vue/composition-api";
 export default {
   name: "infoCategoryView",
-  setup() {
-    const form = reactive({
-      categoryName: "",
+  setup(props, { root }) {
+    const addfirstcategory_visible = ref(true);
+    const addseccategory_visible = ref(true);
+    const sub_btn_isloading = ref(false);
+    const category = reactive({ item: [] });
+    const categoryFrom = reactive({
+      firstcategoryName: "",
       secCategoryName: ""
     });
+    const addFirstCategory = () => {
+      addfirstcategory_visible.value = true;
+      addseccategory_visible.value = false;
+    };
+    const getategoryAll = () => {
+      GetCategoryAll()
+        .then(response => {
+          let data = response.data;
+          category.item = data.data;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
+    const addFirstCategorySub = () => {
+      if (!categoryFrom.firstcategoryName) {
+        root.$message({
+          message: "分类名称不能为空",
+          type: "error"
+        });
+        return false;
+      }
+      sub_btn_isloading.value = true;
+      let requestData = {
+        categoryName: categoryFrom.firstcategoryName
+      };
+      AddFirstCategory(requestData)
+        .then(response => {
+          let data = response.data;
+          if (data.resCode === 0) {
+            root.$message({
+              message: data.message,
+              type: "success"
+            });
+            /**
+             * 两种处理方法
+             * 1、请求接获取分类接口（缺点：浪费资源）
+             * 2、直接push，请求接口后返回的数据
+             */
+            category.item.push(data.data);
+            // 数组的方法，添加数组末尾
+          }
+          categoryFrom.firstcategoryName = "";
+          categoryFrom.secCategoryName = "";
+          sub_btn_isloading.value = false;
+        })
+        .catch(error => {
+          console.log(error);
+          sub_btn_isloading.value = false;
+          categoryFrom.firstcategoryName = "";
+          categoryFrom.secCategoryName = "";
+        });
+    };
+    //挂载完成后自动执行
+    onMounted(() => {
+      getategoryAll();
+    });
     return {
-      form
+      addfirstcategory_visible,
+      addseccategory_visible,
+      sub_btn_isloading,
+      category,
+      categoryFrom,
+      getategoryAll,
+      addFirstCategory,
+      addFirstCategorySub
     };
   }
 };
