@@ -1,5 +1,16 @@
 <template>
   <div id="login">
+    <div class="login-top">
+      <div class="login-top-logo">
+        <img src="../../assets/images/picc-index.png" />
+      </div>
+      <div class="login-top-txt">
+        抚顺公司数据综合管理平台
+      </div>
+    </div>
+    <div class="login-icon">
+      <img src="../../assets/images/word.png" />
+    </div>
     <div class="login-wrap">
       <ul class="menu-tab">
         <li
@@ -91,6 +102,10 @@
         </el-form-item>
       </el-form>
     </div>
+    <div class="login-bottom">
+      抚顺公司数据综合管理平台-中国人民财产保险股份有限公司抚顺市分公司-周忠强 ©
+      2015-{{ yearStr }}
+    </div>
   </div>
 </template>
 <script>
@@ -99,6 +114,7 @@ import sha1 from "js-sha1";
 // 必须引入 api 相关的内容
 import { reactive, ref, onMounted } from "@vue/composition-api";
 import { GetSms, Register } from "@/api/login";
+import { getYearStr } from "../../utils/app.js";
 import {
   validateStr,
   validateEmail,
@@ -118,6 +134,7 @@ export default {
     const codeButtonStats = reactive({ text: "获取验证码", disabled: false });
     // 计时器
     const timer = ref(null);
+    const yearStr = getYearStr();
     const menuTab = reactive([
       { txt: "登录", isCurrent: true, type: "login" },
       { txt: "注册", isCurrent: false, type: "register" }
@@ -332,6 +349,7 @@ export default {
       subButtonStats,
       codeButtonStats,
       menuTab,
+      yearStr,
       modelType,
       submitForm,
       resetForm,
@@ -349,11 +367,68 @@ export default {
 <style lang="scss" scoped>
 #login {
   height: 100vh;
-  background-color: #344a5f;
+  background-color: rgb(23, 34, 46);
+  // background-color: rgb(250, 34, 46);
+}
+.login-top {
+  height: 100px;
+  background-color: rgba(0, 0, 0, 0.7);
+  .login-top-logo {
+    float: left;
+    margin-left: 50px;
+    margin-top: 25px;
+    height: 40px;
+    width: 100px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .login-top-txt {
+    padding-left: 170px;
+    font-size: 20px;
+    font-weight: 700;
+    padding-top: 32px;
+    color: #fff;
+  }
+}
+.login-bottom {
+  position: fixed;
+  height: 50px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding-top: 25px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.login-icon {
+  width: 35%;
+  height: 35%;
+  position: absolute;
+  top: 50%;
+  left: 25%;
+  transform: translate(-50%, -50%);
+  img {
+    width: 100%;
+    height: 100%;
+  }
 }
 .login-wrap {
   width: 330px;
-  margin: auto;
+  position: absolute;
+  top: 50%;
+  right: 13%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(23, 34, 46, 0.02);
+  border: 2px ridge rgba(250, 250, 250, 0.767);
+  border-radius: 5px;
+  @include webkit(box-shadow, 0 3px 16px 0 rgba(250, 250, 250, 0.57));
+  padding: 20px;
 }
 .menu-tab {
   text-align: center;

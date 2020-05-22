@@ -101,7 +101,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
+            @click="deleteItem(scope.$index, scope.row)"
             >删除</el-button
           >
         </template>
@@ -111,7 +111,7 @@
     <!--底部分页-->
     <el-row>
       <el-col :span="12">
-        <el-button size="medium">批量删除</el-button>
+        <el-button size="medium" @click="deleteAllItem">批量删除</el-button>
       </el-col>
       <el-col :span="12">
         <el-pagination
@@ -130,10 +130,12 @@
 <script>
 import { reactive, ref } from "@vue/composition-api";
 import DialogInfo from "./dialog/addinfo";
+import { global } from "@/utils/global";
 export default {
   name: "infoListView",
   components: { DialogInfo },
   setup() {
+    const { confirm } = global();
     const category_options = reactive([
       {
         value: "1",
@@ -188,13 +190,31 @@ export default {
     const date_value = ref("");
     const search_key = ref("id");
     const search_keyWork = ref("");
-    const add_dialog_visible = ref(true);
+    const add_dialog_visible = ref(false);
 
     const handleEdit = (index, row) => {
       console.log(index, row);
     };
-    const handleDelete = (index, row) => {
+    const deleteItem = (index, row) => {
       console.log(index, row);
+      confirm({
+        content: "确认删除当前信息，确认后将无法恢复！！",
+        tip: "警告",
+        id: "one",
+        function: confirmDelete
+      });
+    };
+    const deleteAllItem = (index, row) => {
+      console.log(index, row);
+      confirm({
+        content: "删除全部，确认后将无法恢复！！",
+        tip: "警告",
+        id: "all",
+        function: confirmDelete
+      });
+    };
+    const confirmDelete = value => {
+      console.log(value);
     };
 
     return {
@@ -207,7 +227,9 @@ export default {
       add_dialog_visible,
       tableData,
       handleEdit,
-      handleDelete
+      deleteItem,
+      deleteAllItem,
+      confirmDelete
     };
   }
 };
