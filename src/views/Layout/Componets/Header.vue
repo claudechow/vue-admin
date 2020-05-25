@@ -8,7 +8,7 @@
         <img src="../../../assets/images/face.jpg" alt="" />
         {{ username }}
       </div>
-      <div class="header-icon pull-left" @click="exit">
+      <div class="header-icon pull-left" @click="exitComfirm">
         <svg-icon iconClass="exit" className="exit" />
       </div>
     </div>
@@ -16,31 +16,38 @@
 </template>
 <script>
 import { computed } from "@vue/composition-api";
+import { global } from "@/utils/global";
 export default {
   name: "headerView",
   setup(props, { root }) {
+    const { confirm } = global();
     const username = computed(() => root.$store.state.login.username);
     const navMenuState = () => {
       root.$store.commit("app/SET_COLLAPSE");
     };
+    /**
+     * 退出登录
+     */
+    const exitComfirm = () => {
+      confirm({
+        content: "是否退出系统登录?",
+        tip: "退出登录",
+        function: exit
+      });
+    };
+    /**
+     * 确认退出登录后的操作
+     */
     const exit = () => {
-      root
-        .$confirm("是否退出系统登录?", "退出登录", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-        .then(() => {
-          root.$store.dispatch("login/exit").then(() => {
-            root.$router.push({
-              name: "Login"
-            });
-          });
-        })
-        .catch(() => {});
+      root.$store.dispatch("login/exit").then(() => {
+        root.$router.push({
+          name: "Login"
+        });
+      });
     };
     return {
       navMenuState,
+      exitComfirm,
       exit,
       username
     };

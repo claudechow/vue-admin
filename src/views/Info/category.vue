@@ -1,6 +1,8 @@
 <template>
   <div id="category">
-    <el-button type="danger" @click="addFirstCategory">添加一级分类</el-button>
+    <el-button type="danger" @click="handlerAddFirstCategory"
+      >添加一级分类</el-button
+    >
     <hr class="hr-e9e9e9" />
     <div>
       <el-row :gutter="30">
@@ -15,9 +17,22 @@
                 <svg-icon icon-class="plus"></svg-icon>
                 {{ category_item.category_name }}
                 <div class="button-group">
-                  <el-button type="danger" size="mini" round>编辑</el-button>
-                  <el-button type="success" size="mini" round>编辑</el-button>
-                  <el-button size="mini" round>删除</el-button>
+                  <el-button
+                    type="danger"
+                    size="mini"
+                    round
+                    @click="handlerEditFirstCategory(category_item)"
+                    >编辑</el-button
+                  >
+                  <el-button type="success" size="mini" round
+                    >添加子集</el-button
+                  >
+                  <el-button
+                    size="mini"
+                    round
+                    @click="handlerdeleteFirstCategory(category_item)"
+                    >删除</el-button
+                  >
                 </div>
               </h4>
               <ul v-if="category_item.children">
@@ -44,21 +59,30 @@
               ref="categoryFrom"
               label-width="142px"
             >
+              <!-- 一级分类 -->
               <el-form-item
                 label="一级分类名称"
                 v-if="addfirstcategory_visible"
               >
-                <el-input v-model="categoryFrom.firstcategoryName"></el-input>
+                <el-input
+                  v-model="categoryFrom.firstcategoryName"
+                  :disabled="addfirstcategory_disabled"
+                ></el-input>
               </el-form-item>
+              <!-- 二级分类 -->
               <el-form-item label="二级分类名称" v-if="addseccategory_visible">
-                <el-input v-model="categoryFrom.secCategoryName"></el-input>
+                <el-input
+                  v-model="categoryFrom.secCategoryName"
+                  :disabled="addseccategory_disabled"
+                ></el-input>
               </el-form-item>
               <el-form-item>
                 <el-button
                   type="danger"
                   round
-                  @click="addFirstCategorySub"
+                  @click="subCategory"
                   :loading="sub_btn_isloading"
+                  :disabled="addcategorybtn_disabled"
                   >确定</el-button
                 >
               </el-form-item>
@@ -70,23 +94,30 @@
   </div>
 </template>
 <script>
-import { AddFirstCategory, GetCategoryAll } from "@/api/info";
+import {
+  AddFirstCategory,
+  GetCategoryAll,
+  DeleteCategory,
+  EditCategory
+} from "@/api/info";
 import { reactive, ref, onMounted } from "@vue/composition-api";
+import { global } from "@/utils/global";
 export default {
   name: "infoCategoryView",
   setup(props, { root }) {
+    const { confirm } = global();
     const addfirstcategory_visible = ref(true);
     const addseccategory_visible = ref(true);
+    const addfirstcategory_disabled = ref(true);
+    const addseccategory_disabled = ref(true);
+    const addcategorybtn_disabled = ref(true);
     const sub_btn_isloading = ref(false);
+    const sub_btn_type = ref("");
     const category = reactive({ item: [] });
     const categoryFrom = reactive({
       firstcategoryName: "",
       secCategoryName: ""
     });
-    const addFirstCategory = () => {
-      addfirstcategory_visible.value = true;
-      addseccategory_visible.value = false;
-    };
     const getategoryAll = () => {
       GetCategoryAll()
         .then(response => {
@@ -97,10 +128,30 @@ export default {
           console.log(error);
         });
     };
-    const addFirstCategorySub = () => {
+    const subCategory = () => {
+      switch (sub_btn_type.value) {
+        case "add_firtstCategory":
+          addFirstCategory();
+          break;
+        case "edit_firtstCategory":
+          editFirstCategory();
+          break;
+      }
+    };
+    /**
+     * 添加一级分类
+     */
+    const handlerAddFirstCategory = () => {
+      addfirstcategory_visible.value = true;
+      addseccategory_visible.value = false;
+      addfirstcategory_disabled.value = false;
+      addcategorybtn_disabled.value = false;
+      sub_btn_type.value = "add_firtstCategory";
+    };
+    const addFirstCategory = () => {
       if (!categoryFrom.firstcategoryName) {
         root.$message({
-          message: "分类名称不能为空",
+          message: "一级分类名称不能为空",
           type: "error"
         });
         return false;
@@ -109,6 +160,8 @@ export default {
       let requestData = {
         categoryName: categoryFrom.firstcategoryName
       };
+      // 调用接口
+      // 添加一级分类
       AddFirstCategory(requestData)
         .then(response => {
           let data = response.data;
@@ -136,6 +189,110 @@ export default {
           categoryFrom.secCategoryName = "";
         });
     };
+    /**
+     * 编辑一级分类
+     */
+    const handlerEditFirstCategory = category_item => {
+      categoryFrom.firstcategoryName = category_item.category_name;
+      addseccategory_visible.value = false;
+      addfirstcategory_disabled.value = false;
+      addcategorybtn_disabled.value = false;
+      sub_btn_type.value = "edit_firtstCategory";
+      category.current = category_item;
+    };
+    const editFirstCategory = () => {
+      if (!categoryFrom.firstcategoryName) {
+        root.$message({
+          message: "一级分类名称不能为空",
+          type: "error"
+        });
+        return false;
+      }
+      if (category.current.length == 0) {
+        root.$message({
+          message: "请选择要修改的一级分类",
+          type: "error"
+        });
+        return false;
+      }
+      sub_btn_isloading.value = true;
+      let requestData = {
+        id: category.current.id,
+        categoryName: categoryFrom.firstcategoryName
+      };
+      EditCategory(requestData)
+        .then(response => {
+          let data = response.data;
+          if (data.resCode === 0) {
+            root.$message({
+              message: data.message,
+              type: "success"
+            });
+            category.current.category_name = data.data.data.categoryName;
+            categoryFrom.firstcategoryName = "";
+            category.current = [];
+            sub_btn_isloading.value = false;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          sub_btn_isloading.value = false;
+        });
+    };
+    /**
+     * 删除一级分类
+     */
+    const handlerdeleteFirstCategory = category_item => {
+      confirm({
+        content: `是否删除一级分类[${category_item.category_name}]?删除后无法恢复！`,
+        tip: "警告",
+        param: category_item,
+        function: deleteFirstCategory
+      });
+    };
+    const deleteFirstCategory = category_item => {
+      console.log(category_item.category_name);
+      let requestData = {
+        categoryId: category_item.id
+      };
+      DeleteCategory(requestData)
+        .then(response => {
+          let data = response.data;
+          if (data.resCode === 0) {
+            root.$message({
+              message: data.message,
+              type: "success"
+            });
+            // 操作数组
+            /**
+             * 两个参数的时候是删除，三个参数是替换\插入
+             * splice(指定起始位置, 数据的数量, 新数据)
+             * splice(1, 2, {})
+             * [
+             * {id: "132", category_name: "sdf df "},
+             * {}
+             * ]
+             */
+            /**
+             * es6 findIndex
+             * filter
+             */
+            // let index = category.item.findIndex(item => item.id == deleteId.value);
+            // // 删除数组指定元素
+            // category.item.splice(index, 1);
+            /**
+             * 按条件过滤，满足条件的数组结果
+             */
+            let newData = category.item.filter(
+              item => item.id != requestData.categoryId
+            );
+            category.item = newData;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    };
     //挂载完成后自动执行
     onMounted(() => {
       getategoryAll();
@@ -144,11 +301,19 @@ export default {
       addfirstcategory_visible,
       addseccategory_visible,
       sub_btn_isloading,
+      addfirstcategory_disabled,
+      addseccategory_disabled,
+      addcategorybtn_disabled,
       category,
       categoryFrom,
+      subCategory,
       getategoryAll,
+      handlerAddFirstCategory,
       addFirstCategory,
-      addFirstCategorySub
+      handlerEditFirstCategory,
+      editFirstCategory,
+      handlerdeleteFirstCategory,
+      deleteFirstCategory
     };
   }
 };

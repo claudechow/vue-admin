@@ -201,7 +201,7 @@ export default {
       confirm({
         content: "确认删除当前信息，确认后将无法恢复！！",
         tip: "警告",
-        id: "one",
+        param: "one",
         function: confirmDelete
       });
     };
@@ -210,12 +210,12 @@ export default {
       confirm({
         content: "删除全部，确认后将无法恢复！！",
         tip: "警告",
-        id: "all",
+        param: "all",
         function: confirmDelete
       });
     };
-    const confirmDelete = value => {
-      console.log(value);
+    const confirmDelete = param => {
+      console.log(param);
     };
 
     return {
